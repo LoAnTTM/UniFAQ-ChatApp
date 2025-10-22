@@ -1,0 +1,18 @@
+[
+  {
+    "question": "What is UniFAQ?",
+    "answer": "UniFAQ is a system for managing frequently asked questions."
+  },
+  {
+    "question": "How can I submit a new FAQ?",
+    "answer": "You can add new FAQs through the admin interface."
+  },
+  {
+    "question": "Is UniFAQ open source?",
+    "answer": "Yes, the source code is available on GitHub."
+  },
+  {
+    "question": "How can I contribute to UniFAQ?",
+    "answer": "You can contribute by submitting issues and pull requests on GitHub."
+  }
+]
