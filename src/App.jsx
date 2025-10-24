@@ -2,12 +2,16 @@ import { useCallback, useEffect, useState } from 'react';
 import ChatHeader from './components/ChatHeader.jsx';
 import MessageList from './components/MessageList.jsx';
 import InputBar from './components/InputBar.jsx';
-import './App.css';
+import FaqSuggestions from './components/FaqSuggestions.jsx';
+import useFaqSearch from './hooks/useFaqSearch.jsx';
+import '/src/assets/styles/App.css';
 
 const App = () => {
   const [messages, setMessages] = useState([]);
   const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const suggestions = useFaqSearch(searchTerm);
 
   const loadTemplate = useCallback(async () => {
     setIsTemplateLoaded(false);
@@ -75,6 +79,11 @@ const App = () => {
         sender: 'user'
       }
     ]);
+    setSearchTerm('');
+  };
+
+  const handleSuggestionClick = (question) => {
+    setSearchTerm(question);
   };
 
   const handleRetryLoadTemplate = () => {
@@ -95,7 +104,15 @@ const App = () => {
         }
         onRetry={loadError ? handleRetryLoadTemplate : undefined}
       />
-      <InputBar onSend={handleSendMessage} />
+      <InputBar
+        onSend={handleSendMessage}
+        onInputChange={setSearchTerm}
+        inputValue={searchTerm}
+      />
+      <FaqSuggestions
+        suggestions={suggestions}
+        onSuggestionClick={handleSuggestionClick}
+      />
     </div>
   );
 };

@@ -1,17 +1,14 @@
-import React, { useState } from 'react';
+import React from 'react';
 
-const InputBar = ({ onSend }) => {
-  const [draft, setDraft] = useState('');
-
+const InputBar = ({ onSend, onInputChange, inputValue }) => {
   const handleSubmit = (event) => {
     event.preventDefault();
-    const trimmed = draft.trim();
+    const trimmed = inputValue.trim();
     if (!trimmed) {
       return;
     }
 
     onSend(trimmed);
-    setDraft('');
   };
 
   return (
@@ -21,10 +18,10 @@ const InputBar = ({ onSend }) => {
         name="message"
         autoComplete="off"
         placeholder="Type your message..."
-        value={draft}
-        onChange={(event) => setDraft(event.target.value)}
+        value={inputValue}
+        onChange={(event) => onInputChange(event.target.value)}
       />
-      <button type="submit" disabled={!draft.trim()}>
+      <button type="submit" disabled={!inputValue.trim()}>
         Send
       </button>
     </form>
