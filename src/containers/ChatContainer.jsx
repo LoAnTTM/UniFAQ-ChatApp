@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import useFaqSearch from '../hooks/useFaqSearch.jsx';
+import { useCallback, useEffect, useState, useMemo } from 'react';
+import FaqService from '../services/FaqService.js';
 import ChatPresenter from '../components/ChatPresenter.jsx';
 
 const ChatContainer = () => {
@@ -7,74 +7,65 @@ const ChatContainer = () => {
   const [isTemplateLoaded, setIsTemplateLoaded] = useState(false);
   const [loadError, setLoadError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const suggestions = useFaqSearch(searchTerm);
+  const [suggestions, setSuggestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
+  // Create service instance only once using useMemo
+  const faqService = useMemo(() => new FaqService(), []);
 
   const loadTemplate = useCallback(async () => {
     setIsTemplateLoaded(false);
     setLoadError(null);
 
     try {
-      const response = await fetch('src/assets/faqs.json');
-      if (!response.ok) {
-        throw new Error('Failed to load template');
-      }
-
-      const text = await response.text();
-      const data = text.trim() ? JSON.parse(text) : []; 
-
-      if (!Array.isArray(data) || data.length === 0) {
-        setMessages([
-          {
-            id: 'welcome-message',
-            text: 'Welcome! Ask me anything.',
-            sender: 'assistant'
-          }
-        ]);
-      } else {
-        const templateMessages = data.flatMap((item) => [
-          {
-            id: `q-${item.id}`,
-            text: item.question,
-            sender: 'user'
-          },
-          {
-            id: `a-${item.id}`,
-            text: item.answer,
-            sender: 'assistant'
-          }
-        ]);
-
-        setMessages(templateMessages);
-      }
+      const result = await faqService.loadFaqTemplate();
+      setMessages(result.messages);
+      setLoadError(result.error);
       setIsTemplateLoaded(true);
     } catch (error) {
-      console.error('Error loading FAQs:', error);
-      setMessages([
-        {
-          id: 'error-message',
-          text: 'Welcome! Ask me anything.',
-          sender: 'assistant'
-        }
-      ]);
+      console.error('Error loading template:', error);
+      setMessages([{
+        id: 'error-message',
+        text: 'Welcome! Ask me anything.',
+        sender: 'assistant'
+      }]);
+      setLoadError('Unable to load the conversation template. Please try again.');
       setIsTemplateLoaded(true);
-      setLoadError(null);
-      // setLoadError('Unable to load the conversation template. Please try again.');
     }
-  }, []);
+  }, [faqService]);
 
   useEffect(() => {
     loadTemplate();
   }, [loadTemplate]);
 
+  const searchFaqs = useCallback(async (searchTerm) => {
+    if (!searchTerm || searchTerm.trim().length <= 2) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = await faqService.searchFaqs(searchTerm);
+      setSuggestions(results);
+    } catch (error) {
+      console.error('Search error:', error);
+      setSuggestions([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [faqService]);
+
+  // Handle search functionality
+  useEffect(() => {
+    if (searchTerm) {
+      searchFaqs(searchTerm);
+    }
+  }, [searchTerm, searchFaqs]);
+
   const handleSendMessage = (text) => {
-    setMessages((current) => [
-      ...current,
-      {
-        id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
-        text,
-        sender: 'user'
-      }
-    ]);
+    const newMessage = faqService.createUserMessage(text);
+    setMessages((current) => [...current, newMessage]);
     setSearchTerm('');
   };
 
@@ -93,6 +84,7 @@ const ChatContainer = () => {
       loadError={loadError}
       searchTerm={searchTerm}
       suggestions={suggestions}
+      isLoading={isLoading}
       onSendMessage={handleSendMessage}
       onSuggestionClick={handleSuggestionClick}
       onRetryLoadTemplate={handleRetryLoadTemplate}

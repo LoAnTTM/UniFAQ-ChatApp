@@ -11,6 +11,7 @@ const ChatPresenter = ({
   loadError,
   searchTerm,
   suggestions,
+  isLoading,
   onSendMessage,
   onSuggestionClick,
   onRetryLoadTemplate,
@@ -37,6 +38,7 @@ const ChatPresenter = ({
       />
       <FaqSuggestions
         suggestions={suggestions}
+        isLoading={isLoading}
         onSuggestionClick={onSuggestionClick}
       />
     </div>
