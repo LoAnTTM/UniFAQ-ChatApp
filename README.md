@@ -1,49 +1,129 @@
 # UniFAQ React Chat
 
-## How to Run the App
+A modern React chat application implementing a three-layer modular architecture for FAQ management and user interaction.
 
-1. Install dependencies:
+## 🚀 Quick Start
 
+### Prerequisites
+- Node.js (v16 or higher)
+- npm or yarn
+
+### Installation & Running
+
+1. **Install dependencies:**
    ```bash
    npm install
    ```
 
-2. Start the development server:
-
+2. **Start the development server:**
    ```bash
    npm run dev
    ```
+   Vite will print the local address `http://localhost:5000`. Open it in your browser to see the app.
 
-   Vite prints the local address (defaults to `http://localhost:5173`). Open it in your browser to see the app.
-
-3. Build for production (optional):
-
+3. **Build for production:**
    ```bash
    npm run build
    ```
 
-   After building, you can preview the production output with:
-
+4. **Preview production build:**
    ```bash
    npm run preview
    ```
 
-## Key Directory Structure
+## 🏗️ Architecture Overview
+
+This application follows a **three-layer modular architecture** that separates concerns for better maintainability, testability, and scalability.
+
+### Architecture Diagram
+
+```mermaid
+graph TD
+    A[App.jsx] --> B[ChatContainer]
+    B --> C[ChatPresenter]
+    B --> D[FaqService]
+    D --> F[FaqRepository]
+    F --> G[faqs.json]
+    
+    C --> H[ChatHeader]
+    C --> I[MessageList]
+    C --> J[InputBar]
+    C --> K[FaqSuggestions]
+    
+    subgraph "🎨 UI Layer (Presentation)"
+        C
+        H
+        I
+        J
+        K
+    end
+    
+    subgraph "⚙️ Service Layer (Business Logic)"
+        D
+    end
+    
+    subgraph "🗄️ Repository Layer (Data Access)"
+        F
+        G
+    end
+    
+    subgraph "Container Layer"
+        B
+    end
+```
+
+## 📁 Project Structure
 
 ```
 src/
-  App.jsx          # Main App component that manages the message state
-  App.css          # Global styles for the app
-  main.jsx         # Entry point, renders App
-  components/
-    ChatHeader.jsx # Chat header
-    MessageList.jsx# Message list
-    InputBar.jsx   # Input field and send button
+├── repositories/          # Data Access Layer
+│   └── FaqRepository.js   # Handles FAQ data fetching
+├── services/              # Business Logic Layer  
+│   └── FaqService.js      # FAQ business operations
+├── containers/            # Container Components
+│   └── ChatContainer.jsx  # Business logic container
+├── components/            # UI Components
+│   ├── ChatPresenter.jsx  # Pure UI presenter
+│   ├── ChatHeader.jsx     # Chat header component
+│   ├── MessageList.jsx    # Message list component
+│   ├── InputBar.jsx       # Input field component
+│   └── FaqSuggestions.jsx # FAQ suggestions component
+├── hooks/                 # Custom Hooks
+│   └── useFaqSearch.jsx  # Legacy search hook
+├── assets/                # Static Assets
+│   ├── faqs.json         # Mock FAQ data
+│   └── styles/           # CSS files
+│       ├── App.css       # Global styles
+│       └── index.css     # Base styles
+├── App.jsx               # Root component
+└── main.jsx             # Application entry point
 ```
 
-## App Flow
+## 🎯 Layer Responsibilities
 
-1. `App.jsx` stores the `messages` state.
-2. `InputBar` receives the `onSend` callback and calls it when the user submits.
-3. `App` updates the state and passes the new array down to `MessageList`.
-4. `MessageList` renders each message; if none exist it prompts the user to send one.
+### 🎨 UI Layer (Presentation)
+- **Purpose**: Handle user interface and user interactions
+- **Components**: React components that render UI elements
+- **Responsibilities**:
+  - Display data to users
+  - Handle user input events
+  - Manage component state for UI behavior
+  - Render loading states and error messages
+
+### ⚙️ Service Layer (Business Logic)
+- **Purpose**: Implement business rules and data processing
+- **Components**: Service classes
+- **Responsibilities**:
+  - Process and transform data
+  - Implement search algorithms
+  - Handle business rules and validation
+  - Coordinate between UI and Repository layers
+
+### 🗄️ Repository Layer (Data Access)
+- **Purpose**: Handle data persistence and retrieval
+- **Components**: Repository classes and data sources
+- **Responsibilities**:
+  - Fetch data from external sources
+  - Handle data format conversion
+  - Manage data access patterns
+  - Abstract data source details from upper layers

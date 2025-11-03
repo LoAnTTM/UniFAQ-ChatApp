@@ -1,6 +1,14 @@
 import React from 'react';
 
-const FaqSuggestions = ({ suggestions, onSuggestionClick }) => {
+const FaqSuggestions = ({ suggestions, isLoading, onSuggestionClick }) => {
+  if (isLoading) {
+    return (
+      <div className="faq-suggestions">
+        <p>Searching FAQs...</p>
+      </div>
+    );
+  }
+
   if (suggestions.length === 0) {
     return null;
   }
